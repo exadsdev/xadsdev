@@ -1,0 +1,5 @@
+:root { --brand: #0d6efd; }
+html,body { scroll-behavior:smooth; }
+.img-fit { object-fit: cover; }
+.badge-soft { background: rgba(13,110,253,.1); color:#0d6efd; }
+.hero-gradient { background: linear-gradient(180deg,#ffffff, #f8f9fa 70%); }
