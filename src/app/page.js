@@ -4,7 +4,8 @@ import { USP, CTA } from '@/components/SectionBlocks';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
-
+import Rewive from './components/Rewive';
+import Rewives from './components/Rewives';
 
 export const revalidate = 3600;
 
@@ -77,6 +78,8 @@ export default function HomePage() {
       </section>
 
       <USP />
+      <Rewive />
+      <Rewives />
 
       {/* -------------------- บล็อกเนื้อหา SEO: รับยิงแอดสายเทา -------------------- */}
       <section className="py-5 bg-light border-top">
@@ -126,7 +129,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ย่อหน้า SEO เพิ่มคีย์เวิร์ด */}
+        
           <div className="mt-4">
             <p className="text-secondary">
               เราคือเอเจนซี่ <strong>รับยิงแอดสายเทา</strong> ที่เน้นวางแผนเชิงข้อมูล เลือกวิธีสื่อสารและครีเอทีฟให้สอดคล้องกับนโยบายแพลตฟอร์มมากที่สุด

@@ -1,6 +1,9 @@
-// src/components/Header.jsx
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 import { site } from "@/lib/site";
 
 /* === Inline SVG Icons (แทน lucide-react) === */
@@ -22,7 +25,6 @@ function IconMessage(props){ return (
     <path d="M21 15a4 4 0 0 1-4 4H8l-5 5V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
   </svg>
 );}
-/* Hamburger icon (SVG) */
 function IconBurger(props){ return (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
        strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
@@ -32,8 +34,32 @@ function IconBurger(props){ return (
   </svg>
 );}
 
+/* helper: ปิด offcanvas แล้วนำทาง (แก้ปัญหามือถือกดแล้วไม่ไปหน้าใหม่) */
+function useOffcanvasNavigate() {
+  const router = useRouter();
+
+  return useCallback((href) => {
+    try {
+      const el = document.getElementById("mainNavOffcanvas");
+      // bootstrap อาจอยู่บน window ถ้าคุณโหลด bundle ของ Bootstrap ไว้ใน layout
+      const bs = typeof window !== "undefined" && window.bootstrap;
+      if (el && bs?.Offcanvas) {
+        const inst = bs.Offcanvas.getOrCreateInstance(el);
+        inst.hide(); // ปิดเมนู
+        // หน่วงเล็กน้อยให้แอนิเมชันปิดทำงานก่อน แล้วค่อยนำทาง
+        setTimeout(() => router.push(href), 150);
+        return;
+      }
+    } catch (_) {}
+    // fallback: นำทางทันที
+    router.push(href);
+  }, [router]);
+}
+
 /* === Header (Desktop + Mobile Offcanvas) === */
 export default function Header() {
+  const go = useOffcanvasNavigate();
+
   return (
     <header className="border-bottom bg-white sticky-top">
       <div className="container d-flex align-items-center justify-content-between py-2">
@@ -45,8 +71,11 @@ export default function Header() {
 
         {/* Desktop nav */}
         <nav className="d-none d-lg-flex gap-3 align-items-center">
-          <Link href="/services" className="text-secondary text-decoration-none">
-            <span className="me-1 align-middle"><IconLineChart /></span> บริการ
+          <Link href="/" className="text-secondary text-decoration-none">
+            <span className="me-1 align-middle"><IconLineChart /></span> Home
+          </Link>
+            <Link href="/services" className="text-secondary text-decoration-none">
+            บริการ
           </Link>
           <Link href="/packages" className="text-secondary text-decoration-none">แพ็กเกจ</Link>
           <Link href="/courses" className="text-secondary text-decoration-none">คอร์ส</Link>
@@ -95,22 +124,47 @@ export default function Header() {
 
         <div className="offcanvas-body d-flex flex-column">
           <ul className="list-unstyled fs-6">
-            <li className="mb-2"><Link href="/services" className="text-decoration-none" data-bs-dismiss="offcanvas">บริการ</Link></li>
-            <li className="mb-2"><Link href="/packages" className="text-decoration-none" data-bs-dismiss="offcanvas">แพ็กเกจ</Link></li>
-            <li className="mb-2"><Link href="/courses" className="text-decoration-none" data-bs-dismiss="offcanvas">คอร์ส</Link></li>
-            <li className="mb-2"><Link href="/blog" className="text-decoration-none" data-bs-dismiss="offcanvas">บทความ</Link></li>
-            <li className="mb-2"><Link href="/contact" className="text-decoration-none" data-bs-dismiss="offcanvas">ติดต่อเรา</Link></li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/" onClick={(e)=>{e.preventDefault(); go("/");}}>
+                Home
+              </a>
+            </li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/services" onClick={(e)=>{e.preventDefault(); go("/services");}}>
+                บริการ
+              </a>
+            </li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/packages" onClick={(e)=>{e.preventDefault(); go("/packages");}}>
+                แพ็กเกจ
+              </a>
+            </li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/courses" onClick={(e)=>{e.preventDefault(); go("/courses");}}>
+                คอร์ส
+              </a>
+            </li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/blog" onClick={(e)=>{e.preventDefault(); go("/blog");}}>
+                บทความ
+              </a>
+            </li>
+            <li className="mb-2">
+              <a className="text-decoration-none" href="/contact" onClick={(e)=>{e.preventDefault(); go("/contact");}}>
+                ติดต่อเรา
+              </a>
+            </li>
           </ul>
 
           <div className="mt-auto d-grid gap-2">
             {site.phone && (
-              <a href={`tel:${site.phone}`} className="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+              <a href={`tel:${site.phone}`} className="btn btn-outline-secondary">
                 <IconPhone className="me-2" /> โทร {site.phone}
               </a>
             )}
-            <Link href="/packages" className="btn btn-primary" data-bs-dismiss="offcanvas">
+            <a className="btn btn-primary" href="/packages" onClick={(e)=>{e.preventDefault(); go("/packages");}}>
               <IconMessage className="me-2" /> ดูแพ็กเกจ
-            </Link>
+            </a>
           </div>
         </div>
       </div>

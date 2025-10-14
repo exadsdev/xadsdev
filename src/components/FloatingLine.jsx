@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 
 function lineUrlFromEnv(line) {
   const id = String(line || "").replace(/^@/, "");
-  return id ? `https://line.me/R/ti/p/${id}` : null;
+  return id ? `https://line.me/R/ti/p/@${id}` : null;
 }
 
 export default function FloatingLine() {

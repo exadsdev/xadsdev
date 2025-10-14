@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 function lineProfileUrl(id) {
   const clean = String(id || "").trim().replace(/^@/, "");
-  return clean ? `https://line.me/R/ti/p/${clean}` : "";
+  return clean ? `https://line.me/R/ti/p/@${clean}` : "";
 }
 
 export default function Footer() {

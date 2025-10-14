@@ -53,7 +53,7 @@ export default function RootLayout({ children }) {
         <main>{children}</main>
         <Footer />
 
-        {/* ปุ่มลอย LINE แบบเด้ง ๆ */}
+        
         <FloatingLine />
 
         {/* JSON-LD */}
