@@ -47,6 +47,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="th">
+    <meta name="google-site-verification" content="KbepSD6AuLLUlPObkwm-VhzZQsSl924boMZqSsW1-hQ" />
       <body>
         <Header />
         <VisitorTracker />
