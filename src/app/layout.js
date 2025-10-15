@@ -1,6 +1,7 @@
 // src/app/layout.jsx
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Script from 'next/script';
+import { Suspense } from 'react';
 import { site } from '@/lib/site';
 import { defaultImages } from '@/lib/seo';
 import Header from '@/components/Header';
@@ -32,7 +33,6 @@ export const metadata = {
     siteName: site.name,
     title: `${site.name} — Performance Ads & Grey-Area Marketing`,
     description: 'เอเจนซี่ยิงแอดที่โฟกัสกำไร วัดผลได้จริง',
-    // ใช้รูปเฉพาะของโปรเจ็กต์ถ้ามี ไม่งั้นใช้ PREVIEW หรือ defaultImages
     images:
       (site?.ogImages?.length && site.ogImages) ||
       [{ url: PREVIEW, width: 1200, height: 630, alt: site.name }] ||
@@ -45,9 +45,7 @@ export const metadata = {
     images: PREVIEW,
   },
   icons: { icon: '/favicon.ico' },
-  other: {
-    'max-image-preview': 'large',
-  },
+  other: { 'max-image-preview': 'large' },
 };
 
 export default function RootLayout({ children }) {
@@ -55,8 +53,16 @@ export default function RootLayout({ children }) {
     <html lang="th">
       <body>
         <Header />
-        <VisitorTracker />
-        <AnalyticsTracker />
+
+        {/* ครอบ component ที่ใช้ useSearchParams/usePathname ด้วย Suspense */}
+        <Suspense fallback={null}>
+          <VisitorTracker />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
+
         <main>{children}</main>
         <Footer />
         <FloatingLine />
@@ -76,20 +82,18 @@ export default function RootLayout({ children }) {
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
-                // เก็บค่าให้ lib/gtag ดึงใช้ (fallback)
                 window.__GAID__ = '${GA_MEASUREMENT_ID}';
-
                 gtag('js', new Date());
-                gtag('config','${GA_MEASUREMENT_ID}', {
-                  send_page_view: true
-                });
+                gtag('config','${GA_MEASUREMENT_ID}', { send_page_view: true });
               `}
             </Script>
           </>
         ) : null}
 
         {/* Google Ads (ถ้ามีในโปรเจกต์) */}
-        <AdsTagInjector />
+        <Suspense fallback={null}>
+          <AdsTagInjector />
+        </Suspense>
 
         {/* Bootstrap JS Bundle */}
         <Script
