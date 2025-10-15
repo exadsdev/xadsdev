@@ -82,6 +82,7 @@ export default function RootLayout({ children }) {
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
+                // ให้ lib/gtag ใช้เป็น fallback
                 window.__GAID__ = '${GA_MEASUREMENT_ID}';
                 gtag('js', new Date());
                 gtag('config','${GA_MEASUREMENT_ID}', { send_page_view: true });
@@ -90,7 +91,7 @@ export default function RootLayout({ children }) {
           </>
         ) : null}
 
-        {/* Google Ads (ถ้ามีในโปรเจกต์) */}
+        {/* Google Ads (ถ้ามีในโปรเจกต์ และถ้าใช้ hooks ให้ครอบ Suspense เช่นกัน) */}
         <Suspense fallback={null}>
           <AdsTagInjector />
         </Suspense>
