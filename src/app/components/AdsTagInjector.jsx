@@ -1,38 +1,26 @@
-// app/components/AdsTagInjector.jsx
+'use client';
+
 import Script from 'next/script';
-import { readAdsSettings } from '@/lib/adsFile';
 
-export default async function AdsTagInjector() {
-  const { conversion_id, send_page_view, event_snippet } = await readAdsSettings();
+const ADS_ID =
+  process.env.NEXT_PUBLIC_GADS_ID || process.env.NEXT_PUBLIC_GA4_ID || '';
 
-  if (!conversion_id || !conversion_id.trim()) return null;
-
-  // สร้าง config สำหรับ gtag
-  const configJson = JSON.stringify({ send_page_view: !!send_page_view });
-
+export default function AdsTagInjector() {
+  if (!ADS_ID) return null;
   return (
     <>
-      {/* gtag base */}
       <Script
-        id="gtag-base"
-        src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(conversion_id)}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${ADS_ID}`}
         strategy="afterInteractive"
       />
-      <Script id="gtag-config" strategy="afterInteractive">
+      <Script id="gads-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${conversion_id}', ${configJson});
+          gtag('config', '${ADS_ID}');
         `}
       </Script>
-
-      {/* event snippet เพิ่มเติม (ถ้าใส่ไว้) — แนะนำให้เป็นคำสั่ง gtag(...) เท่านั้น */}
-      {event_snippet?.trim() ? (
-        <Script id="gtag-extra" strategy="afterInteractive">
-          {event_snippet}
-        </Script>
-      ) : null}
     </>
   );
 }
