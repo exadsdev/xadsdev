@@ -2,26 +2,29 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Script from 'next/script';
 import { site } from '@/lib/site';
-import { defaultImages } from '@/lib/seo'; // ใช้เป็น fallback ได้
+import { defaultImages } from '@/lib/seo';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { JsonLdWebSite, JsonLdOrganization } from '@/components/JsonLd';
 import FloatingLine from '@/components/FloatingLine';
 import VisitorTracker from '@/app/components/VisitorTracker.client';
 import AdsTagInjector from '@/app/components/AdsTagInjector';
+import AnalyticsTracker from '@/app/components/AnalyticsTracker.client';
 
 // รูปหลักที่อยากให้ขึ้นเวลาพรีวิวทั้งเว็บ (1200x630, อยู่ใน public/)
-const PREVIEW = '/preview.jpg?v=1'; // เติม ?v=1 กันแคชเครือข่ายโซเชียล
+const PREVIEW = '/preview.jpg?v=1';
+
+// รองรับทั้งค่าใน site และ .env
+const GA_MEASUREMENT_ID = site.ga4 || process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata = {
-  metadataBase: new URL(site.url), // ทำให้ path เป็น absolute อัตโนมัติ
+  metadataBase: new URL(site.url),
   title: {
     default: `${site.name} | เอเจนซี่โฆษณาออนไลน์ (Google/Facebook/YouTube)`,
     template: `%s | ${site.name}`,
   },
   description:
     'รับยิงแอดสายเทา (รวมสายเทาในกรอบแพลตฟอร์ม) วางแผน+วัดผล ทำกำไรยั่งยืน',
-  // meta keywords ไม่จำเป็นต่อ Google แต่ถ้าจะเก็บไว้ให้สั้นลงจะดีกว่า
   alternates: { canonical: site.url },
   openGraph: {
     type: 'website',
@@ -29,14 +32,17 @@ export const metadata = {
     siteName: site.name,
     title: `${site.name} — Performance Ads & Grey-Area Marketing`,
     description: 'เอเจนซี่ยิงแอดที่โฟกัสกำไร วัดผลได้จริง',
-    // ใช้รูปเฉพาะของโปรเจ็กต์ ถ้าไม่มีจะตกไปใช้ defaultImages
-    images: [{ url: PREVIEW, width: 1200, height: 630, alt: site.name }] || defaultImages,
+    // ใช้รูปเฉพาะของโปรเจ็กต์ถ้ามี ไม่งั้นใช้ PREVIEW หรือ defaultImages
+    images:
+      (site?.ogImages?.length && site.ogImages) ||
+      [{ url: PREVIEW, width: 1200, height: 630, alt: site.name }] ||
+      defaultImages,
   },
   twitter: {
     card: 'summary_large_image',
     title: `${site.name} — Performance Ads`,
     description: 'โฆษณาออนไลน์เน้นผลลัพธ์',
-    images: `${PREVIEW}`, // ให้ตรงกับ OG
+    images: PREVIEW,
   },
   icons: { icon: '/favicon.ico' },
   other: {
@@ -47,14 +53,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="th">
-    <meta name="google-site-verification" content="KbepSD6AuLLUlPObkwm-VhzZQsSl924boMZqSsW1-hQ" />
       <body>
         <Header />
         <VisitorTracker />
+        <AnalyticsTracker />
         <main>{children}</main>
         <Footer />
-
-        
         <FloatingLine />
 
         {/* JSON-LD */}
@@ -62,24 +66,29 @@ export default function RootLayout({ children }) {
         <JsonLdOrganization />
 
         {/* GA4 */}
-        {site.ga4 ? (
+        {GA_MEASUREMENT_ID ? (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${site.ga4}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
               strategy="afterInteractive"
             />
-            <Script id="ga4" strategy="afterInteractive">
+            <Script id="ga4-init" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
+                // เก็บค่าให้ lib/gtag ดึงใช้ (fallback)
+                window.__GAID__ = '${GA_MEASUREMENT_ID}';
+
                 gtag('js', new Date());
-                gtag('config','${site.ga4}');
+                gtag('config','${GA_MEASUREMENT_ID}', {
+                  send_page_view: true
+                });
               `}
             </Script>
           </>
         ) : null}
 
-        {/* Google Ads */}
+        {/* Google Ads (ถ้ามีในโปรเจกต์) */}
         <AdsTagInjector />
 
         {/* Bootstrap JS Bundle */}
