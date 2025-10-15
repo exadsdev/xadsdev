@@ -10,13 +10,13 @@ import { JsonLdWebSite, JsonLdOrganization } from '@/components/JsonLd';
 import FloatingLine from '@/components/FloatingLine';
 import VisitorTracker from '@/app/components/VisitorTracker.client';
 import AdsTagInjector from '@/app/components/AdsTagInjector';
-import AnalyticsTracker from '@/app/components/AnalyticsTracker.client';
+import AnalyticsTracker from './components/AnalyticsTracker.client';
 
 // รูปหลักที่อยากให้ขึ้นเวลาพรีวิวทั้งเว็บ (1200x630, อยู่ใน public/)
 const PREVIEW = '/preview.jpg?v=1';
 
-// รองรับทั้งค่าใน site และ .env
-const GA_MEASUREMENT_ID = site.ga4 || process.env.NEXT_PUBLIC_GA_ID;
+// ใช้เฉพาะ GA4 (G-XXXXXXXXXX) จาก .env
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata = {
   metadataBase: new URL(site.url),
@@ -54,7 +54,6 @@ export default function RootLayout({ children }) {
       <body>
         <Header />
 
-        {/* ครอบ component ที่ใช้ useSearchParams/usePathname ด้วย Suspense */}
         <Suspense fallback={null}>
           <VisitorTracker />
         </Suspense>
@@ -82,7 +81,6 @@ export default function RootLayout({ children }) {
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
-                // ให้ lib/gtag ใช้เป็น fallback
                 window.__GAID__ = '${GA_MEASUREMENT_ID}';
                 gtag('js', new Date());
                 gtag('config','${GA_MEASUREMENT_ID}', { send_page_view: true });
@@ -91,7 +89,6 @@ export default function RootLayout({ children }) {
           </>
         ) : null}
 
-        {/* Google Ads (ถ้ามีในโปรเจกต์ และถ้าใช้ hooks ให้ครอบ Suspense เช่นกัน) */}
         <Suspense fallback={null}>
           <AdsTagInjector />
         </Suspense>
