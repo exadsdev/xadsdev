@@ -1,3 +1,4 @@
+// src/app/components/AnalyticsTracker.client.jsx
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
